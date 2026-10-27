@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SOQL Quick</title>
+    <link rel="stylesheet" href="src/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="titlebar">
+        <div>
+          <h1>SOQL Quick</h1>
+          <p>Read-only Salesforce query utility</p>
+        </div>
+        <div class="connection-controls">
+          <span id="connectionBadge" class="badge disconnected">Not connected</span>
+          <button id="connectButton" class="primary">Connect Salesforce</button>
+          <button id="signOutButton" class="secondary hidden">Sign out</button>
+          <button id="settingsButton" class="icon-button" title="Settings" aria-label="Settings">⚙</button>
+        </div>
+      </header>
+
+      <section class="workspace">
+        <div class="main-pane">
+          <div class="editor-wrap">
+            <textarea id="queryEditor" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" writingsuggestions="false" aria-label="SOQL query">SELECT Id, Name
+FROM Account
+LIMIT 10</textarea>
+            <div id="completionPanel" class="completion-panel hidden" role="listbox"></div>
+          </div>
+
+          <div class="toolbar">
+            <button id="runButton" class="primary">Run Query</button>
+            <button id="cancelButton" disabled>Cancel</button>
+            <span id="spinner" class="spinner hidden" aria-hidden="true"></span>
+            <span id="statusText">Ready</span>
+            <button id="detailsButton" class="link-button hidden">Details</button>
+            <span class="spacer"></span>
+            <span id="countText"></span>
+            <button id="copyButton" disabled>Copy Table</button>
+            <button id="sheetButton" disabled title="Copy the full table and open a new Google Sheet">Google Sheet</button>
+            <button id="toggleSchemaButton" title="Toggle schema browser">Schema</button>
+          </div>
+
+          <div class="results-wrap">
+            <table id="resultsTable">
+              <thead></thead>
+              <tbody><tr><td class="empty-state">Run a query to see results.</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <aside id="schemaSidebar" class="schema-sidebar">
+          <div class="sidebar-heading">
+            <div><strong>Schema Browser</strong><small id="schemaStatus">Connect to load schema</small></div>
+            <button id="refreshSchemaButton" title="Refresh schema">↻</button>
+          </div>
+          <input id="objectSearch" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" writingsuggestions="false" placeholder="Find an object…" aria-label="Find an object" />
+          <select id="objectList" size="9" aria-label="Salesforce objects"></select>
+          <input id="fieldSearch" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" writingsuggestions="false" placeholder="Find a field…" aria-label="Find a field" disabled />
+          <div id="fieldList" class="field-list" role="listbox"></div>
+          <div class="sidebar-actions">
+            <button id="insertFieldButton" disabled>Insert</button>
+            <button id="copyFieldButton" disabled>Copy API Name</button>
+            <button id="copyFieldLabelButton" disabled>Copy Field Label</button>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <dialog id="errorDialog">
+      <form method="dialog">
+        <h2>Error details</h2>
+        <pre id="errorDetails"></pre>
+        <div class="dialog-actions"><button id="copyErrorButton" type="button">Copy</button><button>Close</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="settingsDialog">
+      <form method="dialog">
+        <h2>Settings</h2>
+        <label>Global show-window shortcut
+          <select id="shortcutSelect">
+            <option value="Control+Alt+S">Control + Alt/Option + S</option>
+            <option value="CommandOrControl+Shift+S">Command/Control + Shift + S</option>
+            <option value="CommandOrControl+Alt+S">Command/Control + Alt/Option + S</option>
+          </select>
+        </label>
+        <p class="help">The shortcut opens and focuses SOQL Quick from another application.</p>
+        <label class="checkbox-label"><input id="hideSystemObjects" type="checkbox" checked /> Hide app and system objects in the schema browser</label>
+        <p class="help">Managed-package, automation, setup, rules-engine, history, sharing, feed, event, and metadata objects are hidden. Explicit query autocomplete remains available.</p>
+        <div class="dialog-actions"><button id="saveSettingsButton" type="button" class="primary">Save</button><button>Cancel</button></div>
+      </form>
+    </dialog>
+
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>

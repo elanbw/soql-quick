@@ -1,0 +1,118 @@
+name: SOQL Quick installers
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_name:
+        description: Artifact label
+        required: false
+        default: beta
+  push:
+    branches:
+      - main
+    tags:
+      - v*
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-15
+            artifact: soql-quick-macos-arm64
+            bundles: dmg
+          - platform: windows-2025
+            artifact: soql-quick-windows-x64
+            bundles: nsis
+    runs-on: ${{ matrix.platform }}
+    env:
+      SALESFORCE_CLIENT_ID: ${{ secrets.SOQL_QUICK_SALESFORCE_CLIENT_ID }}
+      SALESFORCE_LOGIN_URL: ${{ vars.SOQL_QUICK_SALESFORCE_LOGIN_URL }}
+      SALESFORCE_CALLBACK_URL: http://localhost:1410/callback
+      SALESFORCE_API_VERSION: "66.0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - name: Validate build configuration
+        shell: bash
+        run: |
+          test -n "$SALESFORCE_CLIENT_ID"
+          test -n "$SALESFORCE_LOGIN_URL"
+      - run: npm ci
+      - run: npm run check
+      - name: Build unsigned installers
+        run: npx tauri build --bundles ${{ matrix.bundles }}
+      - name: Stage friendly release asset
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          mkdir -p release
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            installer="$(find src-tauri/target/release/bundle/nsis -type f -name '*-setup.exe' -print -quit)"
+            test -n "$installer"
+            cp "$installer" "release/SOQL-Quick-Setup-${version}-Windows-x64.exe"
+          else
+            installer="$(find src-tauri/target/release/bundle/dmg -type f -name '*.dmg' -print -quit)"
+            test -n "$installer"
+            cp "$installer" "release/SOQL-Quick-${version}-macOS-arm64.dmg"
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}-${{ inputs.release_name || 'beta' }}
+          path: |
+            src-tauri/target/release/bundle/**/*.dmg
+            src-tauri/target/release/bundle/**/*.exe
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          name: release-${{ matrix.artifact }}
+          path: release/*
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          path: release
+          merge-multiple: true
+      - name: Verify release assets
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          test "$(find release -maxdepth 1 -type f | wc -l)" -eq 2
+          test -s "release/SOQL-Quick-Setup-${version}-Windows-x64.exe"
+          test -s "release/SOQL-Quick-${version}-macOS-arm64.dmg"
+      - name: Publish prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          gh release create "$GITHUB_REF_NAME" release/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "SOQL Quick ${version}" \
+            --notes-file INSTALL.md \
+            --prerelease \
+            --verify-tag

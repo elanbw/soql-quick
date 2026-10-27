@@ -1,0 +1,77 @@
+:root { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #172033; background: #f4f7fb; font-synthesis: none; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 820px; min-height: 540px; overflow: hidden; }
+button, input, select, textarea { font: inherit; }
+button { border: 1px solid #c6cfdd; border-radius: 7px; background: #fff; color: #243047; padding: 7px 12px; cursor: pointer; }
+button:hover:not(:disabled) { background: #f0f4fa; }
+button:disabled { opacity: .48; cursor: default; }
+.primary { background: #1769e0; border-color: #1769e0; color: white; font-weight: 600; }
+.primary:hover:not(:disabled) { background: #0f59c5; }
+.secondary { background: transparent; }
+.hidden { display: none !important; }
+.app-shell { height: 100vh; display: flex; flex-direction: column; }
+.titlebar { display: flex; align-items: center; justify-content: space-between; min-height: 70px; padding: 12px 18px; background: #fff; border-bottom: 1px solid #dbe1eb; }
+.titlebar h1 { margin: 0; font-size: 21px; }
+.titlebar p { margin: 2px 0 0; font-size: 12px; color: #68748a; }
+.connection-controls { display: flex; align-items: center; gap: 8px; }
+.badge { padding: 5px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.badge.connected { color: #126336; background: #def5e8; }
+.badge.disconnected { color: #6b4850; background: #f5e8eb; }
+.icon-button { font-size: 18px; padding: 4px 9px; }
+.workspace { flex: 1; display: flex; min-height: 0; }
+.main-pane { flex: 1; min-width: 0; padding: 12px; display: flex; flex-direction: column; gap: 9px; }
+.editor-wrap { position: relative; height: 31%; min-height: 165px; }
+#queryEditor { width: 100%; height: 100%; resize: none; padding: 11px; border: 1px solid #b9c3d2; border-radius: 7px; background: white; color: #111827; font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre; overflow: auto; tab-size: 2; }
+#queryEditor:focus, input:focus, select:focus { outline: 2px solid #8db8f5; outline-offset: 0; }
+.toolbar { display: flex; align-items: center; gap: 8px; min-height: 34px; font-size: 13px; }
+.spacer { flex: 1; }
+#statusText { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #69758a; max-width: 46vw; }
+#statusText.error { color: #b42318; }
+.link-button { padding: 2px 4px; border: 0; background: none; color: #1769e0; text-decoration: underline; }
+.spinner { width: 15px; height: 15px; border: 2px solid #c7d4e7; border-top-color: #1769e0; border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.results-wrap { flex: 1; overflow: auto; background: #fff; border: 1px solid #cbd3df; border-radius: 7px; }
+table { border-collapse: separate; border-spacing: 0; min-width: 100%; font: 12px/1.35 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+th, td { text-align: left; padding: 7px 9px; border-right: 1px solid #e0e5ed; border-bottom: 1px solid #e0e5ed; white-space: nowrap; max-width: 420px; overflow: hidden; text-overflow: ellipsis; }
+th { position: sticky; top: 0; z-index: 1; background: #edf2f8; font-weight: 700; }
+.record-link { color: #1769e0; text-decoration: underline; text-underline-offset: 2px; }
+.record-link:hover { color: #0f59c5; }
+tbody tr:nth-child(even) { background: #f8fafc; }
+.empty-state { color: #778399; font-family: inherit; padding: 24px; border: 0; }
+.schema-sidebar { width: 330px; min-width: 270px; max-width: 440px; padding: 12px; border-left: 1px solid #d4dbe6; background: #fff; display: flex; flex-direction: column; gap: 8px; }
+.schema-sidebar.collapsed { display: none; }
+.sidebar-heading { display: flex; align-items: center; justify-content: space-between; }
+.sidebar-heading strong, .sidebar-heading small { display: block; }
+.sidebar-heading small { color: #728096; margin-top: 2px; }
+.schema-sidebar input, .schema-sidebar select { width: 100%; padding: 7px 8px; border: 1px solid #c7d0de; border-radius: 6px; background: #fff; }
+#objectList { min-height: 145px; }
+.field-list { flex: 1; min-height: 140px; overflow: auto; border: 1px solid #c7d0de; border-radius: 6px; }
+.field-row { padding: 7px 8px; border-bottom: 1px solid #e6eaf0; cursor: default; }
+.field-row:hover { background: #f1f5fb; }
+.field-row.selected { background: #dceaff; }
+.field-row strong, .field-row small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.field-row small { color: #68758c; margin-top: 2px; }
+.sidebar-actions { display: flex; flex-wrap: wrap; gap: 7px; }
+.completion-panel { position: fixed; z-index: 20; width: 410px; max-height: 250px; overflow: auto; border: 1px solid #aeb8c7; border-radius: 7px; background: #fff; box-shadow: 0 8px 24px #26354d33; }
+.completion-item { padding: 7px 9px; border-bottom: 1px solid #edf0f4; font: 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.completion-item.selected { background: #dceaff; }
+.completion-item small { color: #718097; margin-left: 7px; }
+.checkbox-label { display: flex; align-items: center; gap: 8px; }
+.checkbox-label input { width: auto; }
+dialog { border: 0; border-radius: 10px; box-shadow: 0 18px 60px #1f293744; width: min(620px, 85vw); }
+dialog::backdrop { background: #14213d55; }
+dialog h2 { margin-top: 0; }
+dialog pre { max-height: 300px; overflow: auto; padding: 12px; border-radius: 6px; background: #f2f4f7; white-space: pre-wrap; user-select: text; }
+dialog label { display: grid; gap: 7px; }
+dialog select { padding: 8px; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.help { color: #69758a; font-size: 13px; }
+@media (prefers-color-scheme: dark) {
+  :root { color: #e6ebf3; background: #151a23; }
+  .titlebar, .schema-sidebar, #queryEditor, .results-wrap, .completion-panel, button, .schema-sidebar input, .schema-sidebar select { background: #202733; color: #e7edf6; }
+  .titlebar, .schema-sidebar, .results-wrap, #queryEditor, .field-list { border-color: #404a5b; }
+  th { background: #2a3444; } tbody tr:nth-child(even) { background: #1b222d; }
+  .record-link { color: #7db4ff; }
+  .record-link:hover { color: #acd0ff; }
+  .field-row.selected, .completion-item.selected { background: #174b85; }
+}
