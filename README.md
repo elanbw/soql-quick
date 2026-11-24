@@ -11,6 +11,34 @@ The original Swift/R implementation is archived under `legacy-salesforcer/` as m
 
 Builds are unsigned. Intel Macs, automatic updates, Apple notarization, and Windows code signing are not included yet.
 
+## Quick start: use SOQL Quick with your own Salesforce org
+
+There is no one-size installer to download. Each build is tied to one org's External Client App: the client ID and login URL are compiled into the app, so you make your own build once and then share that installer with your colleagues. Plan on about 30 minutes.
+
+1. **Create the External Client App** in your org (a Salesforce admin, about 10 minutes). Follow [Salesforce administrator setup](#salesforce-administrator-setup) below, then copy two values: the **consumer key** and your org's **My Domain login URL** (for example `https://acme.my.salesforce.com`). No client secret is involved.
+2. **Get the code:**
+
+   ```bash
+   git clone https://github.com/elanbw/soql-quick.git
+   cd soql-quick
+   cp .env.example .env
+   ```
+
+3. **Fill in `.env`:** paste the consumer key into `SALESFORCE_CLIENT_ID` and the login URL into `SALESFORCE_LOGIN_URL`. Leave the callback URL and API version as they are unless your admin set them differently.
+4. **Build the installer**, choosing one route:
+   - **On your own computer.** Install Node.js 20+, Rust (via [rustup](https://rustup.rs)), and [Tauri's prerequisites](https://v2.tauri.app/start/prerequisites/) for your system (Xcode Command Line Tools on macOS; Microsoft C++ Build Tools and WebView2 on Windows). Then run `zsh build-cross-platform.sh` on a Mac or `.\build-windows.ps1` in Windows PowerShell. The scripts read `.env`, run the tests, and write the installer under `src-tauri/target/release/bundle/` (`.dmg` on macOS, `.msi`/`.exe` on Windows). A Mac builds the Mac installer and Windows builds the Windows one.
+   - **With GitHub Actions, with no local tools.** Fork this repository. In your fork, open **Settings → Secrets and variables → Actions** and add the secret `SOQL_QUICK_SALESFORCE_CLIENT_ID` (the consumer key) and the variable `SOQL_QUICK_SALESFORCE_LOGIN_URL` (the login URL). On the **Actions** tab, enable workflows, open **SOQL Quick installers**, and choose **Run workflow**. When it finishes, download the macOS and Windows installers from the run's artifacts. Pushing a tag such as `v2.0.5` also publishes them on a prerelease.
+5. **Install and connect.** Follow [INSTALL.md](INSTALL.md). The first launch warns because builds are unsigned. Choose **Connect Salesforce** and approve access in the browser.
+6. **Share it.** Give colleagues the installer and `INSTALL.md`. Each person needs access to the External Client App, usually through a permission set.
+
+To run the app in development mode against your org, load `.env` first, because `npm run dev` doesn't read it on its own:
+
+```bash
+set -a; source .env; set +a
+npm install
+npm run dev
+```
+
 ## Salesforce administrator setup
 
 SOQL Quick uses OAuth Authorization Code with PKCE. It never embeds a client secret or asks the user to enter a Salesforce password into the app.
@@ -122,3 +150,7 @@ Windows SmartScreen can warn that the publisher is unknown. After confirming the
 - **Cached schema is stale:** use the refresh button in the schema browser.
 - **Query timeout:** narrow the query or add filters; requests time out after 120 seconds.
 - **Private results:** never paste private query results into an AI chat or commit them to this repository.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
